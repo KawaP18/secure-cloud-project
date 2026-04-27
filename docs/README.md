@@ -44,11 +44,9 @@ docs/
   README.md
   report.pdf
 security/
-trivy-or-grype/
-zap/
 evidence/
 screenshots/
-logs/
+monitoring/
 ```
 
 The docker-compose.yml file defines the container stack. The traefik folder contains reverse proxy and TLS configuration. The scripts folder contains helper scripts for backup, restore and verification. The security folder contains scan outputs. The evidence folder stores screenshots and logs used in the report.
