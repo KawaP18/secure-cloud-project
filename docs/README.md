@@ -4,7 +4,7 @@
 
 This project implements a secure private cloud hosting environment using Docker and Docker Compose on an Ubuntu Server VirtualBox virtual machine.
 
-The aim of the project is to demonstrate a small secure hosting platform for an organisation that needs a web-facing service and supporting internal services. The solution applies Zero Trust and Defence in Depth principles by combining reverse proxying, HTTPS, network segmentation, identity management, host firewall rules, intrusion detection, logging, monitoring, and security testing.
+The aim of the project is to demonstrate a small secure hosting platform for an organisation that needs a web-facing service and supporting internal services. The solution applies Zero Trust and Defence in Depth principles by combining reverse proxying, HTTPS, network segmentation, identity management, host firewall rules, intrusion detection, logging, monitoring and security testing.
 
 The environment is not deployed to a public cloud provider. It runs locally inside a student-built Ubuntu Server VM.
 
@@ -28,28 +28,30 @@ The environment is not deployed to a public cloud provider. It runs locally insi
 
 ## Repository Structure
 
-The repository is organised as follows:
+**The repository is organised as follows:**
 
+```
 /
 docker-compose.yml
 traefik/
 keycloak/
 apps/
 scripts/
-backup.sh
-restore.sh
-verify.sh
+  backup.sh
+  restore.sh
+  verify.sh
 docs/
-README.md
-report.pdf
+  README.md
+  report.pdf
 security/
 trivy-or-grype/
 zap/
 evidence/
 screenshots/
 logs/
+```
 
-The docker-compose.yml file defines the container stack. The traefik folder contains reverse proxy and TLS configuration. The scripts folder contains helper scripts for backup, restore, and verification. The security folder contains scan outputs. The evidence folder stores screenshots and logs used in the report.
+The docker-compose.yml file defines the container stack. The traefik folder contains reverse proxy and TLS configuration. The scripts folder contains helper scripts for backup, restore and verification. The security folder contains scan outputs. The evidence folder stores screenshots and logs used in the report.
 
 ## System Architecture
 
@@ -75,10 +77,10 @@ Cloudflare Tunnel provides external access to the application without opening ad
 
 ## Network Design
 
-The solution uses two main Docker networks:
+**The solution uses two main Docker networks:**
 
 frontend_net:
-This network is used for services that need to be reachable through Traefik, such as the web app, Keycloak, Dozzle, Prometheus, and Grafana.
+This network is used for services that need to be reachable through Traefik, such as the web app, Keycloak, Dozzle, Prometheus and Grafana.
 
 backend_net:
 This network is used for internal services such as PostgreSQL. Backend services are not directly reachable from outside the Docker environment.
@@ -110,41 +112,41 @@ Cloudflare Tunnel allows external access without directly exposing services to t
 ## Setup Instructions
 
 Start from the project directory:
-
+```
 cd ~/secure-cloud
-
+```
 Start the environment:
-
+```
 docker compose up -d
-
+```
 Check running containers:
-
+```
 docker ps
-
+```
 Stop the environment:
-
+```
 docker compose down
-
+```
 Restart the environment:
-
+```
 docker compose down
 docker compose up -d
-
+```
 ## Accessing Services
 
-Application:
+**Application:**
 
 https://localhost:8443/app
 
-Keycloak:
+**Keycloak:**
 
 https://localhost:8443/auth
 
-Dozzle logs:
+**Dozzle logs:**
 
 https://localhost:8443/logs
 
-Grafana:
+**Grafana:**
 
 https://localhost:8443/grafana
 
@@ -152,7 +154,7 @@ Prometheus is used internally for metrics collection.
 
 ## Keycloak Credentials
 
-Admin login:
+**Admin login:**
 
 Username: admin
 Password: AdminPass123!
@@ -161,7 +163,7 @@ Keycloak is used to demonstrate identity and access management. Users and roles 
 
 ## Grafana Credentials
 
-Default login:
+**Default login:**
 
 Username: admin
 Password: admin
@@ -170,81 +172,81 @@ If Grafana asks for a password change, use a new lab password and record it secu
 
 ## Verification Commands
 
-Check containers:
-
+**Check containers:**
+```
 docker ps
-
-Check HTTPS app access:
-
+```
+**Check HTTPS app access:**
+```
 curl -k -I https://localhost:8443/app
-
-Check database is not exposed from the host:
-
+```
+**Check database is not exposed from the host:**
+```
 nc -vz 127.0.0.1 5432 || true
-
-Check the app can resolve the database internally:
-
+```
+**Check the app can resolve the database internally:**
+```
 docker exec app getent hosts db
-
-Check UFW:
-
+```
+**Check UFW:**
+```
 sudo ufw status verbose
-
-Check CrowdSec:
-
+```
+**Check CrowdSec:**
+```
 sudo systemctl status crowdsec
 sudo cscli metrics
-
-Check Prometheus from inside Grafana:
-
+```
+**Check Prometheus from inside Grafana:**
+```
 docker exec grafana wget -qO- http://prometheus:9090/api/v1/query?query=up
-
+```
 ## Scripts
 
-The scripts folder contains:
+**The scripts folder contains:**
 
-backup.sh
+**backup.sh**
 Creates a simple backup of important configuration files.
 
-restore.sh
+**restore.sh**
 Restores configuration files from a previous backup folder.
 
-verify.sh
+**verify.sh**
 Runs basic checks to confirm the stack is running and security controls are active.
 
 Run the verification script:
-
+```
 ./scripts/verify.sh
-
+```
 Run the backup script:
-
+```
 ./scripts/backup.sh
-
+```
 Run the restore script:
-
+```
 ./scripts/restore.sh backups/backup-folder-name
-
+```
 ## Security Testing
 
 Trivy was used for image scanning.
 
-Example command:
-
+**Example command:**
+```
 trivy image nginx:alpine
-
+```
 The Trivy output is stored in:
 
 security/trivy-or-grype/
 
 OWASP ZAP was used to run a baseline scan against the application endpoint.
 
-Target:
+**Target:**
 
 https://localhost:8443/app
 
 ZAP output is stored in:
 
-security/zap/
+**security/zap/**
 
 The main findings were missing HTTP security headers such as CSP and HSTS. These are accepted lab risks and would be fixed in production through secure Traefik middleware and response header configuration.
 
@@ -263,23 +265,23 @@ The up query is used to show target status. Some targets may show as down in the
 Cloudflare Tunnel is used to demonstrate secure external access.
 
 First get the app container IP:
-
+```
 docker inspect app --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{println}}{{end}}'
-
+```
 Then run:
-
+```
 cloudflared tunnel --url http://APP-IP
-
+```
 The generated trycloudflare.com link can be opened in a browser to access the application externally.
 
 ## Evidence Collected
 
-Evidence is stored in:
+**Evidence is stored in:**
 
 evidence/screenshots/
 evidence/logs/
 
-Screenshots should include:
+**Screenshots should include:**
 
 - docker ps showing running containers
 - HTTPS app access
@@ -306,10 +308,10 @@ Some monitoring targets may show as down if services do not expose metrics.
 
 CrowdSec is used mainly for detection evidence and is not fully integrated with automated blocking in this lab.
 
-In production, these limitations would be addressed using trusted certificates, high availability, stronger IAM policies, automated alerting, and SIEM integration.
+In production, these limitations would be addressed using trusted certificates, high availability, stronger IAM policies, automated alerting and SIEM integration.
 
 ## Conclusion
 
-This project demonstrates a secure container-based private cloud hosting environment. It uses layered security controls including Traefik, HTTPS, Docker network segmentation, Keycloak IAM, Dozzle logging, Prometheus and Grafana monitoring, UFW firewalling, CrowdSec intrusion detection, Trivy scanning, OWASP ZAP testing, and Cloudflare Tunnel external access.
+This project demonstrates a secure container-based private cloud hosting environment. It uses layered security controls including Traefik, HTTPS, Docker network segmentation, Keycloak IAM, Dozzle logging, Prometheus and Grafana monitoring, UFW firewalling, CrowdSec intrusion detection, Trivy scanning, OWASP ZAP testing and Cloudflare Tunnel external access.
 
 The solution demonstrates Defence in Depth and Zero Trust principles within a Docker-based Ubuntu Server lab environment.
